@@ -5,6 +5,7 @@ from watchlist_app.models import Movie
 from .serializers import MovieSerializer
 
 
+# function based views
 @api_view(['GET', 'POST'])
 def list_movies(request):
 
