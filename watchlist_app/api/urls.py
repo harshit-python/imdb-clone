@@ -1,9 +1,9 @@
 from django.urls import path
 from watchlist_app.api.views import (
-    WatchListAV,
-    WatchDetailAV,
-    StreamPlatformAV,
-    StreamPlatformDetailAV,
+    WatchListCreate,
+    WatchDetail,
+    StreamPlatformListCreate,
+    StreamPlatformDetail,
     ReviewCreate,
     ReviewList,
     ReviewDetail
@@ -11,10 +11,10 @@ from watchlist_app.api.views import (
 
 
 urlpatterns = [
-    path("watchlist/", WatchListAV.as_view(), name='list-create-watchlist'),
-    path("watchlist/<int:pk>/", WatchDetailAV.as_view(), name='retrieve-update-destroy-watchdetail'),
-    path("stream/", StreamPlatformAV.as_view(), name='list-create-streamplatform'),
-    path("stream/<int:pk>/", StreamPlatformDetailAV.as_view(), name='retrieve-update-destroy-streamplatform'),
+    path("watchlist/", WatchListCreate.as_view(), name='list-create-watchlist'),
+    path("watchlist/<int:pk>/", WatchDetail.as_view(), name='retrieve-update-destroy-watchdetail'),
+    path("stream/", StreamPlatformListCreate.as_view(), name='list-create-streamplatform'),
+    path("stream/<int:pk>/", StreamPlatformDetail.as_view(), name='retrieve-update-destroy-streamplatform'),
     path("watchlist/<int:pk>/review-create/", ReviewCreate.as_view(), name='create-review'),
     path("watchlist/<int:pk>/review/", ReviewList.as_view(), name='list-review'),
     path("watchlist/review/<int:pk>/", ReviewDetail.as_view(), name='retrieve-review'),
