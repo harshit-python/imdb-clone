@@ -6,7 +6,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = '__all__'
+        # excluding this as we are passing its pk in the url
+        exclude = ('watchlist',)
 
 
 class WatchListSerializer(serializers.ModelSerializer):
