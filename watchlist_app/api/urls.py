@@ -12,4 +12,6 @@ urlpatterns = [
     path("watchlist/<int:pk>/", WatchDetailAV.as_view(), name='retrieve-update-destroy-watchdetail'),
     path("streamplatform/", StreamPlatformAV.as_view(), name='list-create-streamplatform'),
     path("streamplatform/<int:pk>/", StreamPlatformDetailAV.as_view(), name='retrieve-update-destroy-streamplatform'),
+    path("streamplatform/<int:pk>/", StreamPlatformDetailAV.as_view(), name='retrieve-update-destroy-streamplatform'),
+    path("streamplatform/<int:pk>/", StreamPlatformDetailAV.as_view(), name='retrieve-update-destroy-streamplatform'),
 ]
