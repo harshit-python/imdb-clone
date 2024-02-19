@@ -32,48 +32,10 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ReviewSerializer
 
 
-# using viewsets
-# calling this viewset using router in urls
-class StreamPlatformVS(viewsets.ViewSet):
-
-    def list(self, request):
-        queryset = StreamPlatform.objects.all()
-        serializer = StreamPlatformSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = StreamPlatform.objects.all()
-        streamplatform_object = get_object_or_404(queryset, pk=pk)
-        serializer = StreamPlatformSerializer(streamplatform_object)
-        return Response(serializer.data)
-
-    def create(self, request):
-        serializer = StreamPlatformSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-
-    def put(self, request, pk):
-        try:
-            stream_object = StreamPlatform.objects.get(pk=pk)
-        except Exception as e:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = StreamPlatformSerializer(data=request.data, instance=stream_object)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-
-    def destroy(self, request, pk):
-        try:
-            stream_object = StreamPlatform.objects.get(pk=pk)
-            stream_object.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+# using ModelViewSet
+class StreamPlatformVS(viewsets.ModelViewSet):
+    queryset = StreamPlatform.objects.all()
+    serializer_class = StreamPlatformSerializer
 
 
 # generic class based views
@@ -86,3 +48,47 @@ class WatchListCreate(generics.ListCreateAPIView):
 class WatchDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = WatchList.objects.all()
     serializer_class = WatchListSerializer
+
+
+# # using viewsets
+# # calling this viewset using router in urls
+# class StreamPlatformVS(viewsets.ViewSet):
+#
+#     def list(self, request):
+#         queryset = StreamPlatform.objects.all()
+#         serializer = StreamPlatformSerializer(queryset, many=True)
+#         return Response(serializer.data)
+#
+#     def retrieve(self, request, pk=None):
+#         queryset = StreamPlatform.objects.all()
+#         streamplatform_object = get_object_or_404(queryset, pk=pk)
+#         serializer = StreamPlatformSerializer(streamplatform_object)
+#         return Response(serializer.data)
+#
+#     def create(self, request):
+#         serializer = StreamPlatformSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
+#
+#     def put(self, request, pk):
+#         try:
+#             stream_object = StreamPlatform.objects.get(pk=pk)
+#         except Exception as e:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         serializer = StreamPlatformSerializer(data=request.data, instance=stream_object)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         else:
+#             return Response(serializer.errors)
+#
+#     def destroy(self, request, pk):
+#         try:
+#             stream_object = StreamPlatform.objects.get(pk=pk)
+#             stream_object.delete()
+#             return Response(status=status.HTTP_204_NO_CONTENT)
+#         except Exception as e:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
