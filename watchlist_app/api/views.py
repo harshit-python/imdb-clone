@@ -1,4 +1,4 @@
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from watchlist_app.models import WatchList, StreamPlatform, Review
@@ -46,6 +46,34 @@ class StreamPlatformVS(viewsets.ViewSet):
         streamplatform_object = get_object_or_404(queryset, pk=pk)
         serializer = StreamPlatformSerializer(streamplatform_object)
         return Response(serializer.data)
+
+    def create(self, request):
+        serializer = StreamPlatformSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def put(self, request, pk):
+        try:
+            stream_object = StreamPlatform.objects.get(pk=pk)
+        except Exception as e:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = StreamPlatformSerializer(data=request.data, instance=stream_object)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def destroy(self, request, pk):
+        try:
+            stream_object = StreamPlatform.objects.get(pk=pk)
+            stream_object.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 # generic class based views
