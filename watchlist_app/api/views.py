@@ -1,8 +1,11 @@
-from rest_framework import generics
+from rest_framework import generics, viewsets
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from .serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 
 
+# generic class based views
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
 
@@ -23,26 +26,35 @@ class ReviewList(generics.ListAPIView):
         return queryset
 
 
+# generic class based views
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
 
-class StreamPlatformListCreate(generics.ListCreateAPIView):
-    queryset = StreamPlatform.objects.all()
-    serializer_class = StreamPlatformSerializer
+# using viewsets
+# calling this viewset using router in urls
+class StreamPlatformVS(viewsets.ViewSet):
+
+    def list(self, request):
+        queryset = StreamPlatform.objects.all()
+        serializer = StreamPlatformSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = StreamPlatform.objects.all()
+        streamplatform_object = get_object_or_404(queryset, pk=pk)
+        serializer = StreamPlatformSerializer(streamplatform_object)
+        return Response(serializer.data)
 
 
-class StreamPlatformDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = StreamPlatform.objects.all()
-    serializer_class = StreamPlatformSerializer
-
-
+# generic class based views
 class WatchListCreate(generics.ListCreateAPIView):
     queryset = WatchList.objects.all()
     serializer_class = WatchListSerializer
 
 
+# generic class based views
 class WatchDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = WatchList.objects.all()
     serializer_class = WatchListSerializer
