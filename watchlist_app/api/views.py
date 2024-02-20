@@ -30,6 +30,7 @@ class ReviewCreate(generics.CreateAPIView):
 # generic class based views
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
 
     # overriding queryset
     def get_queryset(self):
