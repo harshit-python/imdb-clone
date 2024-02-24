@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class AdminOrReadOnly(permissions.IsAdminUser):
+class IsAdminOrReadOnly(permissions.IsAdminUser):
     # this class allows only the GET request or the Admin user
 
     def has_permission(self, request, view):
@@ -19,4 +19,4 @@ class ReviewUserOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            return obj.reviewer == request.user
+            return obj.reviewer == request.user or request.user.is_staff

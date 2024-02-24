@@ -1,19 +1,25 @@
 from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404
 from watchlist_app.models import WatchList, StreamPlatform, Review
 from .serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
-from .permissions import AdminOrReadOnly, ReviewUserOrReadOnly
+from .permissions import IsAdminOrReadOnly, ReviewUserOrReadOnly
 
 
 # generic class based views
 class ReviewCreate(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ReviewSerializer
 
     def perform_create(self, serializer):
         watchlist_pk = self.kwargs['pk']
+        if Review.objects.filter(
+            reviewer=self.request.user,
+            watchlist_id=watchlist_pk
+        ).exists():
+            raise ValidationError({"error": "You have already reviewed this movie/show"})
         watchlist_object = WatchList.objects.get(pk=watchlist_pk)
 
         if watchlist_object.number_of_ratings == 0:
@@ -34,7 +40,6 @@ class ReviewCreate(generics.CreateAPIView):
 # generic class based views
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
 
     # overriding queryset
     def get_queryset(self):
@@ -50,12 +55,11 @@ class ReviewList(generics.ListAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    # adding object level permission
+    permission_classes = [ReviewUserOrReadOnly]
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        # adding a check that only the correct reviewer can update their review.
-        if instance.reviewer != self.request.user:
-            raise PermissionDenied("You don't have permission to update this review.")
         serializer = self.get_serializer(instance, data=request.data)
         if serializer.is_valid():
             # updating watchlist avg review and total review count
@@ -67,9 +71,6 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
             serializer.save()
             return Response(serializer.validated_data)
 
-    # adding object level permission
-    permission_classes = [ReviewUserOrReadOnly]
-
 
 class ListAllReviews(generics.ListAPIView):
     queryset = Review.objects.all()
@@ -79,17 +80,20 @@ class ListAllReviews(generics.ListAPIView):
 # using ModelViewSet
 class StreamPlatformVS(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = StreamPlatformSerializer
 
 
 # generic class based views
 class WatchListCreate(generics.ListCreateAPIView):
+    permission_classes = [IsAdminOrReadOnly]
     queryset = WatchList.objects.all()
     serializer_class = WatchListSerializer
 
 
 # generic class based views
 class WatchDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminOrReadOnly]
     queryset = WatchList.objects.all()
     serializer_class = WatchListSerializer
 
@@ -106,10 +110,12 @@ def update_watchlist_review(
     :param review_old_rating:
     :return:
     """
+    avg_rating = rating
     if rating != review_old_rating:
         watchlist_object = WatchList.objects.get(pk=watchlist_pk)
-        review_difference = rating - review_old_rating
-        avg_rating = (watchlist_object.number_of_ratings * watchlist_object.avg_rating + review_difference) / 2
+        if watchlist_object.number_of_ratings > 1:
+            review_difference = rating - review_old_rating
+            avg_rating = (watchlist_object.number_of_ratings * watchlist_object.avg_rating + review_difference) / 2
         watchlist_object.avg_rating = avg_rating
         watchlist_object.save()
 
