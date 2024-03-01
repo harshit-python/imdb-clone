@@ -7,6 +7,7 @@ from .serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSe
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly, ReviewUserOrReadOnly
 from .throttling import ReviewListThrottle, ReviewCreateThrottle
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 class UserReview(generics.ListAPIView):
@@ -14,8 +15,23 @@ class UserReview(generics.ListAPIView):
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
-        username = self.request.query_params['username']
-        return Review.objects.filter(reviewer__username=username)
+        query_params = self.request.query_params
+        page_size = query_params.get('page_size', 10)
+        page = query_params.get('page', 1)
+        ordering = query_params.get('ordering', None)
+        username = query_params.get('username', None)
+        search = query_params.get('search', None)
+        queryset = Review.objects.all().filter(is_deleted=False)
+        if username:
+            queryset = queryset.filter(reviewer__username=username)
+        if search:
+            queryset = queryset.filter(reviewer__username__icontains=search)
+        if ordering:
+            queryset = queryset.order_by(ordering)
+        paginator = Paginator(queryset, page_size)
+        if page:
+            queryset = paginator.page(page)
+        return queryset
 
 
 # generic class based views
