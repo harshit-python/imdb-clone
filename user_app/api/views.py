@@ -3,9 +3,10 @@ from .serializers import RegistrationSerializer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # importing models here because we have to create token for every user created
-from user_app import models
+# from user_app import models   # commenting this because now token is generated automatically using RefreshToken class
 
 # using function based views
 
@@ -30,9 +31,16 @@ def registration_view(request):
             data['username'] = account.username
             data['email'] = account.email
 
-            # fetching token for that user
-            token = Token.objects.get(user=account).key
-            data['token'] = token
+            # # fetching token for that user
+            # token = Token.objects.get(user=account).key
+            # data['token'] = token
+
+            # using RefreshToken class to generate token for current user
+            refresh = RefreshToken.for_user(account)
+            data['token'] = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
 
         else:
             data = serializer.errors
