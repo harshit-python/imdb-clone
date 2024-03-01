@@ -6,8 +6,16 @@ from watchlist_app.models import WatchList, StreamPlatform, Review
 from .serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly, ReviewUserOrReadOnly
-from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from .throttling import ReviewListThrottle, ReviewCreateThrottle
+
+
+class UserReview(generics.ListAPIView):
+    # view to list reviews for a particular user
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        username = self.request.query_params['username']
+        return Review.objects.filter(reviewer__username=username)
 
 
 # generic class based views

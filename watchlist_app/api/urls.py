@@ -7,7 +7,8 @@ from watchlist_app.api.views import (
     ReviewCreate,
     ReviewList,
     ReviewDetail,
-    ListAllReviews
+    ListAllReviews,
+    UserReview,
 )
 # using routers
 router = DefaultRouter()
@@ -22,4 +23,5 @@ urlpatterns = [
     path("watchlist/<int:pk>/review/", ReviewList.as_view(), name='list-review'),
     path("watchlist/list-all-reviews/", ListAllReviews.as_view(), name='list-all-reviews'),
     path("watchlist/review/<int:pk>/", ReviewDetail.as_view(), name='retrieve-review'),
+    path("review/", UserReview.as_view(), name='user-review'),
 ]
